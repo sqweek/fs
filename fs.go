@@ -24,11 +24,19 @@ func AppDirs(fqdn, name string) (*Dirs, error) {
 	return appDirs(fqdn, name)
 }
 
-func (d Dirs) Locate(filename string) (string, error) {
+func (d Dirs) DataPath() []string {
 	paths := make([]string, 0, len(d.ResourcePath) + 1)
 	paths = append(paths, d.Data)
 	paths = append(paths, d.ResourcePath...)
-	return Locate(filename, paths...)
+	return paths
+}
+
+func (d Dirs) Locate(filename string) (string, error) {
+	return Locate(filename, d.DataPath()...)
+}
+
+func (d Dirs) Search(pattern string) (string, error) {
+	return Search(pattern, d.DataPath()...)
 }
 
 func Locate(filename string, paths... string) (string, error) {
@@ -39,6 +47,24 @@ func Locate(filename string, paths... string) (string, error) {
 		}
 	}
 	return "", &os.PathError{Op: "locate", Path: filename, Err: os.ErrNotExist}
+}
+
+func Search(pattern string, paths... string) (string, error) {
+	for _, dir := range paths {
+		if f, err := os.Open(dir); err == nil {
+			defer f.Close()
+			names, _ := f.Readdirnames(64)
+			for len(names) > 0 {
+				for _, name := range(names) {
+					if match, _ := filepath.Match(pattern, name); match {
+						return filepath.Join(dir, name), nil
+					}
+				}
+				names, err = f.Readdirnames(64)
+			}
+		}
+	}
+	return "", &os.PathError{Op: "search", Path: pattern, Err: os.ErrNotExist}
 }
 
 func ReplaceFile(src, dst string) error {
