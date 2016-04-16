@@ -37,12 +37,12 @@ func appDirs(rqdn, name string) (*Dirs, error) {
 	d.Docs += "/" + name
 
 	exe := exeDir()
-	fd, err := os.Open(exe + "../Resources")
+	fd, err := os.Open(exe + "/../Resources")
 	if fd != nil {
 		fd.Close()
 	}
 	if err == nil || !os.IsNotExist(err) {
-		d.ResourcePath = append(d.ResourcePath, exeDir() + "../Resources")
+		d.ResourcePath = append(d.ResourcePath, exeDir() + "/../Resources")
 	} else {
 		d.ResourcePath = append(d.ResourcePath, exeDir())
 	}
