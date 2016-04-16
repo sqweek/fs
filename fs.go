@@ -71,22 +71,26 @@ func ReplaceFile(src, dst string) error {
 	return replaceFile(src, dst)
 }
 
-func Create(name string) (*os.File, error) {
-	if f, err := os.Create(name); err == nil {
-		return f, nil
-	} else if os.IsNotExist(err) {
-		dir, _ := filepath.Split(name)
-		if err = os.MkdirAll(dir, 0777); err != nil {
-			return nil, err
+/* CreateVia attempts to create a file by calling fn. If fn fails due to an
+ * IsNotExist kind of error, the specified directory is created and the
+ * function attempted once more. */
+func CreateVia(dir string, fn func() error) (err error) {
+	if err = fn(); err != nil && os.IsNotExist(err) {
+		if err = os.MkdirAll(dir, 0777); err == nil {
+			err = fn() // directory created, try again
 		}
-		return os.Create(name)
-	} else {
-		return nil, err
 	}
+	return
 }
 
-func CreateIn(dir, file string) (*os.File, error) {
-	return Create(filepath.Join(dir, file))
+/* CreateIn creates a file in the given directory, creating the directory if necessary. */
+func CreateIn(dir, filename string) (file *os.File, err error) {
+	path := filepath.Join(dir, filename)
+	err = CreateVia(dir, func() (e error) {
+		file, e = os.Create(path)
+		return e
+	})
+	return
 }
 
 
