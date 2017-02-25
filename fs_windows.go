@@ -118,3 +118,7 @@ func replaceFile(src, dst string) error {
 		return err
 	}
 }
+
+func singleConfigDir(usr, app *Dirs) string {
+	return app.Config
+}

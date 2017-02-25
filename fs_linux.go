@@ -67,3 +67,7 @@ func exeDir() string {
 func replaceFile(src, dst string) error {
 	return os.Rename(src, dst)
 }
+
+func singleConfigDir(usr, app *Dirs) string {
+	return usr.Config
+}

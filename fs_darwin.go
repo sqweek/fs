@@ -68,3 +68,7 @@ func exeDir() string {
 	// TODO dereference symlinks from exeFileName?
 	return filepath.Dir(exeFileName())
 }
+
+func singleConfigDir(usr, app *Dirs) string {
+	return app.Config
+}

@@ -93,7 +93,10 @@ func CreateIn(dir, filename string) (file *os.File, err error) {
 	return
 }
 
-
+/* Returns a path appropriate for storing a single config file */
+func SingleConfigPath(usr, app *Dirs, name string) string {
+	return filepath.Join(singleConfigDir(usr, app), name)
+}
 
 func envs(tpls... string) string {
 	for _, tpl := range tpls {
